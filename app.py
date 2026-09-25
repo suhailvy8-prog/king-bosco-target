@@ -20,7 +20,6 @@ st.markdown("""
         margin-bottom: 10px;
     }
 
-    /* Main Section Container (Futuristic Panel Style) */
     .game-panel {
         background: linear-gradient(135deg, #1e1b4b33, #0f172a);
         padding: 22px;
@@ -30,7 +29,6 @@ st.markdown("""
         box-shadow: 0px 8px 25px rgba(99, 102, 241, 0.2);
     }
 
-    /* Target Achieved Special Section (Grand Royal Style) */
     .grand-success-box {
         background: linear-gradient(135deg, #78350f, #451a03);
         padding: 30px;
@@ -41,7 +39,6 @@ st.markdown("""
         box-shadow: 0px 10px 35px rgba(251, 191, 36, 0.4);
     }
 
-    /* Admin Panel Style */
     .admin-panel-box {
         background: linear-gradient(135deg, #4c0519, #1f1218);
         padding: 24px;
@@ -130,24 +127,24 @@ def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
     
-    status_str = "<span style='color:#38BDF8; font-weight:bold;'>➖ START</span>"
-    
     base_unit = st.session_state.wallet_balance / 255
     multipliers = [1, 2, 4, 8, 16, 32, 64, 128]
     current_bet = max(1, round(base_unit * multipliers[st.session_state.current_level - 1]))
 
-    # WIN / LOSS Wallet calculations & updates
+    status_str = "<span style='color:#38BDF8; font-weight:bold;'>➖ START</span>"
+
+    # WIN / LOSS Wallet calculations & live updates
     if st.session_state.last_prediction_bs is not None:
         if not st.session_state.is_skip:
             if current_bs_short == st.session_state.last_prediction_bs:
                 st.session_state.wins += 1
-                status_str = "<span style='color:#00E676; font-weight:900;'>🟢 WIN (+₹" + str(current_bet) + ")</span>"
-                st.session_state.wallet_balance += current_bet  # WIN വരുമ്പോൾ വാലറ്റിലേക്ക് കൂട്ടുന്നു
+                st.session_state.wallet_balance += current_bet  # WIN വരുമ്പോൾ വാലറ്റ് തുക കൂടുന്നു (Live Update)[span_1](start_span)[span_1](end_span)
+                status_str = f"<span style='color:#00E676; font-weight:900;'>🟢 WIN (+₹{current_bet})</span>"
                 st.session_state.current_level = 1  
             else:
                 st.session_state.losses += 1
-                status_str = "<span style='color:#FF5252; font-weight:900;'>🔴 LOSS (-₹" + str(current_bet) + ")</span>"
-                st.session_state.wallet_balance = max(0, st.session_state.wallet_balance - current_bet)  # LOSS വരുമ്പോൾ വാലറ്റിൽ നിന്ന് കുറയുന്നു
+                st.session_state.wallet_balance = max(0, st.session_state.wallet_balance - current_bet)  # LOSS വരുമ്പോൾ വാലറ്റ് കുറയുന്നു[span_2](start_span)[span_2](end_span)
+                status_str = f"<span style='color:#FF5252; font-weight:900;'>🔴 LOSS (-₹{current_bet})</span>"
                 
                 if st.session_state.current_level < 8:
                     st.session_state.current_level += 1  
@@ -309,7 +306,7 @@ st.divider()
 
 if st.session_state.auth_type == "user":
     
-    # 🌟 TARGET ACHIEVED SECTION (Completely Distinct Royal Card Layout)
+    # 🌟 TARGET ACHIEVED SECTION
     if st.session_state.target_achieved:
         st.balloons()
         profit_earned = int((st.session_state.initial_wallet / 500) * 100)
@@ -353,6 +350,7 @@ if st.session_state.auth_type == "user":
     fixed_profit_target = int((st.session_state.initial_wallet / 500) * 100)
     target_goal_amount = st.session_state.initial_wallet + fixed_profit_target
 
+    # Live Wallet Display box where user marked in red[span_3](start_span)[span_3](end_span)
     st.markdown(f"""
         <div style="display: flex; gap: 12px; margin: 15px 0;">
             <div class="wallet-stat-card" style="flex: 1;">
@@ -364,9 +362,9 @@ if st.session_state.auth_type == "user":
                 <div style="font-size: 22px; font-weight: 900; color: #FF5252;">{st.session_state.losses}</div>
             </div>
         </div>
-        <div style="background: #111827; border: 2px solid #6366f1; border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 15px;">
-            <span style="color: #38BDF8; font-weight: bold; font-size: 15px;">🎯 Live Wallet: </span>
-            <span style="color: #FBBF24; font-weight: 900; font-size: 19px;">₹{st.session_state.wallet_balance}</span> 
+        <div style="background: #111827; border: 2px solid #6366f1; border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 15px;">
+            <span style="color: #38BDF8; font-weight: bold; font-size: 15px;">🟢 Live Wallet: </span>
+            <span style="color: #FBBF24; font-weight: 900; font-size: 21px;">₹{st.session_state.wallet_balance}</span> 
             <span style="color: #94A3B8; font-size: 13px;">(Goal: ₹{target_goal_amount})</span>
         </div>
     """, unsafe_allow_html=True)
