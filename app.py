@@ -4,7 +4,7 @@ import uuid
 
 st.set_page_config(page_title="TARGET MASTER PREDICTOR", page_icon="🎯", layout="centered")
 
-# Custom CSS with entirely unique layouts for Main vs Target Achieved
+# Custom CSS
 st.markdown("""
     <style>
     .main { background: #0c0f1d; }
@@ -133,17 +133,17 @@ def handle_number_click(val):
 
     status_str = "<span style='color:#38BDF8; font-weight:bold;'>➖ START</span>"
 
-    # WIN / LOSS Wallet calculations & live updates
+    # Big/Small basis calculations (Wallet updates only based on Big/Small win/loss)
     if st.session_state.last_prediction_bs is not None:
         if not st.session_state.is_skip:
             if current_bs_short == st.session_state.last_prediction_bs:
                 st.session_state.wins += 1
-                st.session_state.wallet_balance += current_bet  # WIN വരുമ്പോൾ വാലറ്റ് തുക കൂടുന്നു (Live Update)[span_1](start_span)[span_1](end_span)
+                st.session_state.wallet_balance += current_bet  # WIN വരുമ്പോൾ വാലറ്റ് തുക കൂടും
                 status_str = f"<span style='color:#00E676; font-weight:900;'>🟢 WIN (+₹{current_bet})</span>"
                 st.session_state.current_level = 1  
             else:
                 st.session_state.losses += 1
-                st.session_state.wallet_balance = max(0, st.session_state.wallet_balance - current_bet)  # LOSS വരുമ്പോൾ വാലറ്റ് കുറയുന്നു[span_2](start_span)[span_2](end_span)
+                st.session_state.wallet_balance = max(0, st.session_state.wallet_balance - current_bet)  # LOSS വരുമ്പോൾ വാലറ്റ് കുറയും
                 status_str = f"<span style='color:#FF5252; font-weight:900;'>🔴 LOSS (-₹{current_bet})</span>"
                 
                 if st.session_state.current_level < 8:
@@ -159,9 +159,10 @@ def handle_number_click(val):
     if st.session_state.wallet_balance >= target_goal_amount:
         st.session_state.target_achieved = True
 
+    # Number prediction display in history ONLY (does not affect wallet balance at all)
     num_win_str = ""
     if st.session_state.last_predicted_numbers and val in st.session_state.last_predicted_numbers:
-        num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:900;'>[🎯 Number Win]</span>"
+        num_win_str = " <span style='color:#00E676; font-size:12px; font-weight:900;'>[🎯 Number Win]</span>"
 
     st.session_state.history.append(current_bs_short)
     st.session_state.num_history.append(val)
@@ -350,7 +351,6 @@ if st.session_state.auth_type == "user":
     fixed_profit_target = int((st.session_state.initial_wallet / 500) * 100)
     target_goal_amount = st.session_state.initial_wallet + fixed_profit_target
 
-    # Live Wallet Display box where user marked in red[span_3](start_span)[span_3](end_span)
     st.markdown(f"""
         <div style="display: flex; gap: 12px; margin: 15px 0;">
             <div class="wallet-stat-card" style="flex: 1;">
@@ -425,7 +425,7 @@ if st.session_state.auth_type == "user":
     else:
         for item in st.session_state.history_details[:10]:
             st.markdown(f"""
-                <div class="history-item-row">
+              <div class="history-item-row">
                     <div><b>Number:</b> {item['num']} ({item['type']}){item['num_win']}</div>
                     <div>{item['status']}</div>
                 </div>
