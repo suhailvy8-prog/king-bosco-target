@@ -438,4 +438,18 @@ if st.session_state.auth_type == "user":
                 <div style="font-size: 32px; font-weight: 900; color: {color_code}; margin: 8px 0; text-shadow: 0px 0px 15px rgba(0,230,118,0.3);">{pred_text}</div>
                 <div style="color: #E2E8F0; font-size: 15px; margin-bottom: 6px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
                 <hr style="border-color: #334155; margin: 10px 0;">
-                <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">🛡️ Level {st.session_state.current_le
+                <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">🛡️ Level {st.session_state.current_level} | Suggested Bet: ₹{suggested_bet}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<h3 style='color: #38BDF8; text-align: center; margin-top: 25px;'>📜 History & Performance</h3>", unsafe_allow_html=True)
+    if not st.session_state.history_details:
+        st.markdown("<p style='text-align: center; color: #94A3B8;'>ഇതുവരെ ഗെയിം ഹിസ്റ്ററി ഒന്നുമില്ല. മുകളിലെ നമ്പറുകളിൽ ക്ലിക്ക് ചെയ്യുക.</p>", unsafe_allow_html=True)
+    else:
+        for item in st.session_state.history_details[:10]:
+            st.markdown(f"""
+                <div class="history-card">
+                    <div><b>Number:</b> {item['num']} ({item['type']}){item['num_win']}</div>
+                    <div>{item['status']}</div>
+                </div>
+            """, unsafe_allow_html=True)
