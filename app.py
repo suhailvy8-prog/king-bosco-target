@@ -168,22 +168,19 @@ def handle_number_click_user(val):
                 st.session_state.wins += 1
                 status_str = "<span class='win-text'>🟢 WIN</span>"
                 st.session_state.wallet_balance += current_bet
-                st.session_state.current_level = 1  # വിൻ ആയാൽ ലെവൽ 1-ലേക്ക് റീസെറ്റ് ആകും
+                st.session_state.current_level = 1  
             else:
                 st.session_state.losses += 1
                 status_str = "<span class='loss-text'>🔴 LOSS</span>"
                 st.session_state.wallet_balance = max(0, st.session_state.wallet_balance - current_bet)
                 
-                # അഞ്ചാമത്തെ ലെവൽ വരെ മാത്രം പരമാവധി പോയി, അതിനുള്ളിൽ വിൻ ഉറപ്പാക്കാൻ 
-                # 5-ൽ എത്തിയാൽ ലെവൽ 1-ലേക്ക് റീസെറ്റ് ചെയ്ത് അടുത്ത ട്രെൻഡ് പിടിക്കും (Safe Guard Logic)
                 if st.session_state.current_level < 5:
                     st.session_state.current_level += 1  
                 else:
-                    st.session_state.current_level = 1  # 5-ാം ലെവൽ കഴിഞ്ഞാൽ സേഫ്റ്റിക്കായി വീണ്ടും 1-ലേക്ക് മാറ്റും
+                    st.session_state.current_level = 1  
         else:
             status_str = "<span style='color:#38BDF8; font-weight:bold;'>🔄 SKIPPED</span>"
 
-    # ടാർഗറ്റ് കണക്കുകൂട്ടൽ (500-ന് 100 പ്രോഫിറ്റ്, 1000-ന് 200, 1500-ന് 300 എന്നിങ്ങനെ)
     profit_target = (st.session_state.initial_wallet / 500) * 100
     target_goal_amount = st.session_state.initial_wallet + profit_target
 
@@ -217,9 +214,7 @@ def handle_number_click_user(val):
         else:
             st.session_state.is_skip = False
 
-        # 5-ാം ലെവലിനുള്ളിൽ ഉറപ്പായ വിൻ ലഭിക്കാൻ സഹായിക്കുന്ന അഡ്വാൻസ്ഡ് ട്രെൻഡ് അനാലിസിസ്
         if st.session_state.current_level >= 4:
-            # ലെവൽ 4 അല്ലെങ്കിൽ 5 എത്തിയാൽ റിവേഴ്സ് ട്രെൻഡ് (ഉറപ്പായ വിൻ ട്രെൻഡ്) ആക്ടീവ്മാകും
             next_pred = "S" if hist[-1] == "B" else "B"
         else:
             is_alternating = len(hist) >= 4 and hist[-1] != hist[-2] != hist[-3] != hist[-4]
@@ -439,4 +434,8 @@ if st.session_state.auth_type == "user":
 
         st.markdown(f"""
             <div class="pred-card">
-                <div style="color: #94A3B8; font-size: 14px; font-wei
+                <div style="color: #94A3B8; font-size: 14px; font-weight: bold; letter-spacing: 1px;">NEXT TARGET PREDICTION</div>
+                <div style="font-size: 32px; font-weight: 900; color: {color_code}; margin: 8px 0; text-shadow: 0px 0px 15px rgba(0,230,118,0.3);">{pred_text}</div>
+                <div style="color: #E2E8F0; font-size: 15px; margin-bottom: 6px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
+                <hr style="border-color: #334155; margin: 10px 0;">
+                <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">🛡️ 8-Level Plan (Safe Win Within Leve
