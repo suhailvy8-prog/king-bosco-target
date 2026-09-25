@@ -174,7 +174,7 @@ def handle_number_click_user(val):
                 status_str = "<span class='loss-text'>🔴 LOSS</span>"
                 st.session_state.wallet_balance = max(0, st.session_state.wallet_balance - current_bet)
                 
-                if st.session_state.current_level < 5:
+                if st.session_state.current_level < 8:
                     st.session_state.current_level += 1  
                 else:
                     st.session_state.current_level = 1  
@@ -438,4 +438,4 @@ if st.session_state.auth_type == "user":
                 <div style="font-size: 32px; font-weight: 900; color: {color_code}; margin: 8px 0; text-shadow: 0px 0px 15px rgba(0,230,118,0.3);">{pred_text}</div>
                 <div style="color: #E2E8F0; font-size: 15px; margin-bottom: 6px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
                 <hr style="border-color: #334155; margin: 10px 0;">
-                <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">🛡️ 8-Level Plan (Safe Win Within Leve
+                <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">🛡️ Level {st.session_state.current_le
