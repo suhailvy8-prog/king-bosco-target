@@ -1,6 +1,7 @@
 import streamlit as st
 import collections
 import uuid
+from streamlit_js_eval import streamlit_js_eval
 
 st.set_page_config(page_title="TARGET MASTER PREDICTOR", page_icon="🎯", layout="centered")
 
@@ -96,6 +97,16 @@ st.markdown("""
 
 st.markdown("<div class='app-header'>🎯 TARGET MASTER PREDICTOR 🎯</div>", unsafe_allow_html=True)
 
+# Persistent Device ID from Local Storage
+stored_device_id = streamlit_js_eval(js_expressions='localStorage.getItem("target_master_device_id")', key='get_dev_id')
+
+if not stored_device_id:
+    new_dev_id = str(uuid.uuid4())
+    streamlit_js_eval(js_expressions=f'localStorage.setItem("target_master_device_id", "{new_dev_id}")', key='set_dev_id')
+    st.session_state.my_device_id = new_dev_id
+else:
+    st.session_state.my_device_id = stored_device_id
+
 # Session States
 if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["target123", "bosco456", "rahul789"]
@@ -107,8 +118,6 @@ if 'auth_type' not in st.session_state:
     st.session_state.auth_type = None
 if 'logged_in_key' not in st.session_state:
     st.session_state.logged_in_key = None
-if 'my_device_id' not in st.session_state:
-    st.session_state.my_device_id = str(uuid.uuid4())
 
 if 'history_details' not in st.session_state: st.session_state.history_details = []
 if 'history' not in st.session_state: st.session_state.history = []
@@ -133,23 +142,22 @@ def handle_number_click(val):
 
     status_str = "<span style='color:#38BDF8; font-weight:bold;'>➖ START</span>"
 
-    # Big/Small win/loss calculation & Wallet update
     if st.session_state.last_prediction_bs is not None:
         if not st.session_state.is_skip:
             if current_bs_short == st.session_state.last_prediction_bs:
                 st.session_state.wins += 1
-                st.session_state.wallet_balance += current_bet  # Win ആകുമ്പോൾ വാലറ്റ് കൂടും
+                st.session_state.wallet_balance += current_bet  
                 status_str = f"<span style='color:#00E676; font-weight:900;'>🟢 WIN (+₹{current_bet})</span>"
                 st.session_state.current_level = 1  
             else:
                 st.session_state.losses += 1
-                st.session_state.wallet_balance = max(0, st.session_state.wallet_balance - current_bet)  # Loss ആകുമ്പോൾ വാലറ്റ് കുറയും
-                status_str = f"<span style='color:#FF5252; font-weight:900;'>🔴 LOSS (-₹{current_bet})</span>"
+                st.session_state.wallet_balance = max(0, st.session_state.wallet_balance - current_bet)  
                 
                 if st.session_state.current_level < 8:
                     st.session_state.current_level += 1  
                 else:
                     st.session_state.current_level = 1  
+                status_str = f"<span style='color:#FF5252; font-weight:900;'>🔴 LOSS (-₹{current_bet})</span>"
         else:
             status_str = "<span style='color:#38BDF8; font-weight:bold;'>🔄 SKIPPED</span>"
 
@@ -159,7 +167,6 @@ def handle_number_click(val):
     if st.session_state.wallet_balance >= target_goal_amount:
         st.session_state.target_achieved = True
 
-    # Number prediction display in history ONLY (does not affect wallet balance)
     num_win_str = ""
     if st.session_state.last_predicted_numbers and val in st.session_state.last_predicted_numbers:
         num_win_str = " <span style='color:#00E676; font-size:12px; font-weight:900;'>[🎯 Number Win]</span>"
@@ -423,12 +430,4 @@ if st.session_state.auth_type == "user":
 
     st.markdown("<h3 style='color: #38BDF8; text-align: center; margin-top: 20px;'>📜 History & Performance</h3>", unsafe_allow_html=True)
     if not st.session_state.history_details:
-        st.markdown("<p style='text-align: center; color: #94A3B8;'>ഇതുവരെ ഗെയിം ഹിസ്റ്ററി ഒന്നുമില്ല. മുകളിലെ നമ്പറുകളിൽ ക്ലിക്ക് ചെയ്യുക.</p>", unsafe_allow_html=True)
-    else:
-        for item in st.session_state.history_details[:10]:
-            st.markdown(f"""
-                <div class="history-item-row">
-                    <div><b>Number:</b> {item['num']} ({item['type']}){item['num_win']}</div>
-                    <div>{item['status']}</div>
-                </div>
-            """, unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center
