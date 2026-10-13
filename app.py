@@ -82,15 +82,13 @@ st.markdown("""
         border-radius: 10px !important;
     }
 
-    .history-item-row {
+    .history-card {
         background: #111827;
         padding: 12px 16px;
-        border-radius: 10px;
+        border-radius: 12px;
         margin-bottom: 8px;
         border-left: 5px solid #6366f1;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        border: 1px solid #1f2937;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -140,14 +138,16 @@ def handle_number_click(val):
     multipliers = [1, 2, 4, 8, 16, 32, 64, 128]
     current_bet = max(1, round(base_unit * multipliers[st.session_state.current_level - 1]))
 
-    status_str = "<span style='color:#38BDF8; font-weight:bold;'>➖ START</span>"
+    status_text = "➖ START"
+    status_color = "#38BDF8"
 
     if st.session_state.last_prediction_bs is not None:
         if not st.session_state.is_skip:
             if current_bs_short == st.session_state.last_prediction_bs:
                 st.session_state.wins += 1
                 st.session_state.wallet_balance += current_bet  
-                status_str = f"<span style='color:#00E676; font-weight:900;'>🟢 WIN (+₹{current_bet})</span>"
+                status_text = f"🟢 WIN (+₹{current_bet})"
+                status_color = "#00E676"
                 st.session_state.current_level = 1  
             else:
                 st.session_state.losses += 1
@@ -157,9 +157,11 @@ def handle_number_click(val):
                     st.session_state.current_level += 1  
                 else:
                     st.session_state.current_level = 1  
-                status_str = f"<span style='color:#FF5252; font-weight:900;'>🔴 LOSS (-₹{current_bet})</span>"
+                status_text = f"🔴 LOSS (-₹{current_bet})"
+                status_color = "#FF5252"
         else:
-            status_str = "<span style='color:#38BDF8; font-weight:bold;'>🔄 SKIPPED</span>"
+            status_text = "🔄 SKIPPED"
+            status_color = "#38BDF8"
 
     profit_target = (st.session_state.initial_wallet / 500) * 100
     target_goal_amount = st.session_state.initial_wallet + profit_target
@@ -167,13 +169,19 @@ def handle_number_click(val):
     if st.session_state.wallet_balance >= target_goal_amount:
         st.session_state.target_achieved = True
 
-    num_win_str = ""
+    num_win_text = ""
     if st.session_state.last_predicted_numbers and val in st.session_state.last_predicted_numbers:
-        num_win_str = " <span style='color:#00E676; font-size:12px; font-weight:900;'>[🎯 Number Win]</span>"
+        num_win_text = "[🎯 Number Win]"
 
     st.session_state.history.append(current_bs_short)
     st.session_state.num_history.append(val)
-    st.session_state.history_details.insert(0, {"num": val, "type": current_bs, "status": status_str, "num_win": num_win_str})
+    st.session_state.history_details.insert(0, {
+        "num": val, 
+        "type": current_bs, 
+        "status_text": status_text, 
+        "status_color": status_color, 
+        "num_win": num_win_text
+    })
 
     hist = st.session_state.history
     num_hist = st.session_state.num_history
@@ -433,13 +441,11 @@ if st.session_state.auth_type == "user":
         st.markdown("<p style='text-align: center; color: #94A3B8;'>ഇതുവരെ ഗെയിം ഹിസ്റ്ററി ഒന്നുമില്ല. മുകളിലെ നമ്പറുകളിൽ ക്ലിക്ക് ചെയ്യുക.</p>", unsafe_allow_html=True)
     else:
         for item in st.session_state.history_details[:10]:
-            row_html = f"""
-                <div class="history-item-row">
-                    <div>
-                        <span style="color: #38BDF8; font-weight: bold;">Number: {item['num']} ({item['type']})</span>
-                        {item.get('num_win', '')}
-                    </div>
-                    <div>{item['status']}</div>
-                </div>
-            """
-            st.markdown(row_html, unsafe_allow_html=True)
+            with st.container():
+                st.markdown("<div class='history-card'>", unsafe_allow_html=True)
+                h_col1, h_col2 = st.columns([1.5, 1])
+                with h_col1:
+                    st.markdown(f"**Number: {item['num']} ({item['type']})**  \n<span style='color: #00E676; font-size: 12px;'>{item['num_win']}</span>", unsafe_allow_html=True)
+                with h_col2:
+                    st.markdown(f"<div style='text-align: right; color: {item['status_color']}; font-weight: bold;'>{item['status_text']}</div>", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
