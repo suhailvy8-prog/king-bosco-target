@@ -433,7 +433,7 @@ if st.session_state.auth_type == "user":
         st.markdown("<p style='text-align: center; color: #94A3B8;'>ഇതുവരെ ഗെയിം ഹിസ്റ്ററി ഒന്നുമില്ല. മുകളിലെ നമ്പറുകളിൽ ക്ലിക്ക് ചെയ്യുക.</p>", unsafe_allow_html=True)
     else:
         for item in st.session_state.history_details[:10]:
-            st.markdown(f"""
+            row_html = f"""
                 <div class="history-item-row">
                     <div>
                         <span style="color: #38BDF8; font-weight: bold;">Number: {item['num']} ({item['type']})</span>
@@ -441,4 +441,5 @@ if st.session_state.auth_type == "user":
                     </div>
                     <div>{item['status']}</div>
                 </div>
-            """, unsafe_allow_html=True)
+            """
+            st.markdown(row_html, unsafe_allow_html=True)
