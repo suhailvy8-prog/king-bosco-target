@@ -95,7 +95,7 @@ st.markdown("""
 
 st.markdown("<div class='app-header'>🎯 TARGET MASTER PREDICTOR 🎯</div>", unsafe_allow_html=True)
 
-# Persistent Device ID from Local Storage
+# Persistent Device ID from Local Storage using a reliable key
 stored_device_id = streamlit_js_eval(js_expressions='localStorage.getItem("target_master_device_id")', key='get_dev_id')
 
 if not stored_device_id:
@@ -235,12 +235,26 @@ if st.session_state.auth_type is None:
             if user_input_key in st.session_state.blocked_keys:
                 st.error("❌ ഈ കീ അഡ്മിൻ ബ്ലോക്ക് ചെയ്തിരിക്കുന്നു!")
             elif user_input_key in st.session_state.allowed_keys:
+                current_dev = st.session_state.get('my_device_id')
+                
+                # Check if this key is already bound to a different device
                 if user_input_key in st.session_state.bound_devices:
-                    if st.session_state.bound_devices[user_input_key] != st.session_state.my_device_id:
-                        st.error("❌ ഈ കീ മറ്റൊരു ഡിവൈസിൽ രജിസ്റ്റർ ചെയ്തതാണ്!")
+                    if st.session_state.bound_devices[user_input_key] != current_dev:
+                        st.error("❌ ഈ കീ മറ്റൊരു ഡിവൈസിൽ രജിസ്റ്റർ ചെയ്തതാണ്! ആ ഡിവൈസിൽ മാത്രമേ ഇത് പ്രവർത്തിക്കൂ.")
                         st.stop()
                 else:
-                    st.session_state.bound_devices[user_input_key] = st.session_state.my_device_id
+                    # Check if current device has already bound to some other key
+                    device_already_bound = False
+                    for k, d_id in st.session_state.bound_devices.items():
+                        if d_id == current_dev and k != user_input_key:
+                            device_already_bound = True
+                            break
+                    
+                    if device_already_bound:
+                        st.error("❌ ഈ ഡിവൈസിൽ ഇതിനകം മറ്റൊരു കീ ഉപയോഗിച്ചിട്ടുണ്ട്!")
+                        st.stop()
+                    else:
+                        st.session_state.bound_devices[user_input_key] = current_dev
 
                 st.session_state.auth_type = "user"
                 st.session_state.logged_in_key = user_input_key
@@ -430,7 +444,7 @@ if st.session_state.auth_type == "user":
             <div class="game-panel">
                 <div style="color: #94A3B8; font-size: 13px; font-weight: bold; letter-spacing: 1px;">NEXT TARGET PREDICTION</div>
                 <div style="font-size: 28px; font-weight: 900; color: {color_code}; margin: 6px 0;">{pred_text}</div>
-                <div style="color: #E2E8F0; font-size: 14px; margin-bottom: 5px;">📊 Likely Numbers: <b style="color:#FBBF24;">{likely_nums}</b></div>
+           <div style="color: #E2E8F0; font-size: 14px; margin-bottom: 5px;">📊 Likely Numbers: <b style="color:#FBBF24;">{likely_nums}</b></div>
                 <hr style="border-color: #312e81; margin: 8px 0;">
                 <div style="color: #38BDF8; font-size: 15px; font-weight: bold;">🛡️ Level {st.session_state.current_level} | Suggested Bet: ₹{suggested_bet}</div>
             </div>
